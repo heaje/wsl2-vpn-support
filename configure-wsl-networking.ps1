@@ -37,19 +37,19 @@ if ($vpn_state -eq "Up") {
 
     echo "Determining VPN Interface parameters ..."
     $vpn_interface_index = (Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "$vpn_interface_desc"} | select -ExpandProperty ifIndex)
-    $vpn_interface_routemetric = (Get-NetRoute -InterfaceIndex $vpn_interface_index | select -ExpandProperty RouteMetric | Sort-Object -Unique | Select-Object -First 1)
+    $vpn_interface_routemetric = (Get-NetRoute -InterfaceIndex $vpn_interface_index | select -ExpandProperty RouteMetric | Sort-Object -Unique | Select-Object -First 1) + 1
 
     # Get list of IPs for the WSL Guest(s)
     echo "Determining IP Addresses of WSL2 Guest(s) ..."
     $wsl_guest_ips = [System.Collections.ArrayList]@()
     if ($config_default_wsl_guest -gt 0) {
-        $guest_ip = (wsl hostname -I)
+        $guest_ip = (wsl /bin/sh -c "ip route get 1.2.3.4 | cut -d ' ' -f7 | tr -d '\n'")
         $arrayId = $wsl_guest_ips.Add($guest_ip.Trim())
         $previous_ips.Remove($guest_ip.Trim())
     }
 
     foreach ($guest_name IN $wsl_guest_list) {
-        $guest_ip = (wsl --distribution $guest_name hostname -I)
+        $guest_ip = (wsl --distribution $guest_name /bin/sh -c "ip route get 1.2.3.4 | cut -d ' ' -f7 | tr -d '\n'")
         $arrayId = $wsl_guest_ips.Add($guest_ip.Trim())
         $previous_ips.Remove($guest_ip.Trim())
     }
