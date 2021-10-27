@@ -41,11 +41,9 @@ if ($vpn_state -eq "Up") {
 
     echo "Determining VPN Interface parameters ..."
     $vpn_interface_index = (Get-NetAdapter | Where-Object {$_.InterfaceDescription -Match "$vpn_interface_desc"} | select -ExpandProperty ifIndex)
-    $vpn_interface_routemetric = (Get-NetRoute -InterfaceIndex $vpn_interface_index | select -ExpandProperty RouteMetric | Sort-Object -Unique | Select-Object -First 1)
+    $vpn_interface_routemetric = (Get-NetRoute -InterfaceIndex $vpn_interface_index | select -ExpandProperty RouteMetric | Sort-Object -Unique | Select-Object -First 1) + 1
     echo "[DEBUG] VPN Interface Parameters: Index = $vpn_interface_index"
     echo "[DEBUG] VPN Interface Parameters: RouteMetric (Actual) = $vpn_interface_routemetric"
-    if ($vpn_interface_routemetric -eq 0) { $vpn_interface_routemetric = 1 }
-    echo "[DEBUG] VPN Interface Parameters: RouteMetric (Adjusted) = $vpn_interface_routemetric"
 
     # Get list of IPs for the WSL Guest(s)
     echo "Determining IP Addresses of WSL2 Guest(s) ..."
